@@ -14,53 +14,37 @@
  
 <?php
 
-
-
-
 function search($dir, $key) {
     $it = new RecursiveDirectoryIterator($dir);
+	$result = array();
     foreach(new RecursiveIteratorIterator($it) as $file) {
-        if (strpos(strtolower($file), strtolower($key) . DIRECTORY_SEPARATOR) !== false) {
-			// echo $key . "<br/> \n";
-			//echo $file . "<br/> \n";
-			//echo substr($file, 0, strlen($file) - 3);
-			echo substr($file, 0, strrpos($file, DIRECTORY_SEPARATOR));
-			return;
+        if (strpos($file, DIRECTORY_SEPARATOR . $key . DIRECTORY_SEPARATOR) !== false) {
+			if (substr($file, -1) == '.' or substr($file, -1) == DIRECTORY_SEPARATOR)
+            continue;
+			$result[] = $file;
 		}
-    }
-
+	}
+	return $result;
 }
 
 $query = $_POST['destination'];
+$files = search("app", $query);
 
-
-
-
-
-ob_start();
-
-search("app", $query);
-
-$out1 = ob_get_contents();
-
-if ($out1 != "") { 
-
-	foreach (glob("$out1" . DIRECTORY_SEPARATOR . "*.*") as $filename) {  
-	// echo $filename."<br />";  
+if (count($files) > 0) {
+	foreach ($files as $filename) {
 		echo "<table>";
 		echo "<tr>";
 		echo "<td><a href=\"$filename\">$filename</a></td>";
-        echo "</tr>";
+		echo "</tr>";
 		echo "</table>";
-	}  
+	}
 } else {
-		echo "<table>";
-		echo "<tr>";
-		echo "<td>Not Found</td>";
-        echo "</tr>";
-		echo "</table>";
+	echo "<table>";
+	echo "<tr>";
+	echo "<td>Not Found</td>";
+	echo "</tr>";
+	echo "</table>";
 }
-
 
 ?>
 <p>
